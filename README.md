@@ -1,13 +1,16 @@
 ## Project Name & Pitch
 
-Test app
+Webb Test app
 
-An application uses Guthub Api in order to search and generate various statistics.
+An application uses GutHub Api in order to search and generate various statistics.
 Built with Spring Boot, Thymeleaf, Bootstrap, MongoDB(embedded), Spring WebFlux
 
 ## Installation and Setup Instructions
 
 Clone down this repository. You will need JDK 8 and Maven installed on your machine.  
+Running the app very first time could take some time to download embedded mongodb
+Please use famous repositories, because only they have public contributors. 
+As collaborators need authenticated user in order to retrieve.
 
 Installation:
 
@@ -27,4 +30,5 @@ To Visit App:
 
 To use REST Api
 
-`POST localhost:8080/api/v1/`
+`localhost:8080/api/v1/`
+`localhost:8080/api/v1/analytics`

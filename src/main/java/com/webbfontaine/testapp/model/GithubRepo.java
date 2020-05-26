@@ -15,6 +15,15 @@ public class GithubRepo {
     private String updatedAt;
     private Owner owner;
 
+    public GithubRepo() {
+
+    }
+
+    public GithubRepo(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }
