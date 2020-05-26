@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+</head>
+<body class="bg-light">
+
+<div class="container p-3 my-3 border">
+    <div class="py-5 text-center">
+        <h2>Github Repository Search Page</h2>
+    </div>
+    <div class="alert alert-danger" role="alert" data-th-if="${errorMessage != null}">
+        <strong>Error:</strong>
+        <span data-th-text="${errorMessage}"></span>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <form id="searchForm" method="get" data-th-action="@{/search}">
+                <div class="form-group">
+                    <input type="search" class="form-control" data-th-name="query" id="query" placeholder="Search...">
+                </div>
+                <button type="submit" id="btnSearch" class="btn btn-primary">Submit</button>
+                <a data-th-href="@{/analytics}" class="btn btn-success" role="button">Bookmarks</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container" data-th-if="${repos != null}">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-th-each="repo: ${repos.getItems()}">
+                <td data-th-text="${repo.name}"></td>
+                <td data-th-text="${repo.description}"></td>
+                <td>
+                    <form data-th-action="@{'/real-time-analytics'}" method="post" data-th-object="${githubRepo}">
+                        <input type="hidden" data-th-value="${repo.id}" name="id"/>
+                        <input type="hidden" data-th-value="${repo.name}" name="name"/>
+                        <input type="hidden" data-th-value="${repo.fullName}" name="fullName"/>
+                        <input type="hidden" data-th-value="${repo.htmlUrl}" name="htmlUrl"/>
+                        <input type="hidden" data-th-value="${repo.description}" name="description"/>
+                        <input type="hidden" data-th-value="${repo.createdAt}" name="createdAt"/>
+                        <input type="hidden" data-th-value="${repo.updatedAt}" name="updatedAt"/>
+                        <input type="hidden" data-th-value="${repo.owner.login}" name="owner.login"/>
+                        <input type="hidden" data-th-value="${repo.owner.id}" name="owner.id"/>
+                        <button type="submit" class="btn btn-secondary">Details</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Search pagination -->
+    <nav aria-label="Search pagination">
+        <ul class="pagination">
+            <li class="page-item" data-th-classappend="${repos.getCurrentPage() eq 1} ? 'disabled'">
+                <a class="page-link"
+                   data-th-href="@{/search(query=${query},page=${repos.getCurrentPage() - 1})}">Previous</a>
+            </li>
+
+            <li class="page-item disabled"
+                data-th-if="${repos.getCurrentPage() > 1}">
+                <a class="page-link">
+                    <span>...</span>
+                </a>
+            </li>
+
+            <li class="page-item" data-th-each="i : ${#numbers.sequence(
+                            repos.getCurrentPage() + 9 > repos.getTotalPages() ? repos.getTotalPages() - 9 : repos.getCurrentPage(),
+                            repos.getCurrentPage() + 9 < repos.getTotalPages() ? repos.getCurrentPage() + 9 : repos.getTotalPages(),
+                            1
+                        )}"
+                data-th-classappend="${i eq repos.getCurrentPage()} ? 'active'">
+                <a class="page-link" href="#" data-th-text="${i}"
+                   data-th-href="@{/search(query=${query},page=${i})}"></a>
+            </li>
+
+            <li class="page-item disabled"
+                data-th-if="${repos.getCurrentPage() + 9 < repos.getTotalPages()}">
+                <a class="page-link">
+                    <span>...</span>
+                </a>
+            </li>
+
+            <li class="page-item"
+                data-th-classappend="${repos.getCurrentPage() + 1 eq repos.getTotalPages()} ? 'disabled'">
+                <a class="page-link"
+                   data-th-href="@{/search(query=${query},page=${repos.getCurrentPage() + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $("#btnSearch").click(function () {
+            // disable button
+            $(this).prop("disabled", true);
+            // add spinner to button
+            $(this).html(
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+            );
+            $('#searchForm').submit();
+        });
+
+        function validateSubmitButton() {
+            var buttonDisabled = $('#query').val().trim() === '';
+            $('#btnSearch').prop('disabled', buttonDisabled);
+        }
+
+        validateSubmitButton();
+
+        $('#query').on('keyup', validateSubmitButton);
+    });
+
+
+</script>
+</body>
+</html>

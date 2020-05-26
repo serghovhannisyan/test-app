@@ -1,0 +1,8 @@
+github:
+  baseUrl: 'https://api.github.com'
+  repos:
+    path:
+      search: '/search/repositories?q={query} in:name&page={page}&per_page={per_page}'
+      contributors: '/repos/{owner}/{repo}/contributors'
+      commits: '/repos/{owner}/{repo}/commits?per_page=100'
+
